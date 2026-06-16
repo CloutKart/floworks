@@ -298,14 +298,18 @@
   .mini .excerpt{font-size:0.82rem;color:var(--text-secondary);}
 
   /* ============================ STANDARD GRID ============================ */
-  .blog-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:clamp(168px,13.5vw,200px);gap:18px;grid-auto-flow:dense;}
+  /* masonry via CSS multi-column: cards pack into balanced columns with no gaps */
+  .blog-grid{column-count:3;column-gap:22px;}
   .blog-grid .card{padding:0;}
 
-  /* ColorMag-style overlay cards (standard grid): image fills card, text overlaid */
-  .card.mag{position:relative;height:100%;border-radius:var(--radius-card);overflow:hidden;box-shadow:var(--neo);display:block;}
-  /* varied sizes throughout: a big feature card recurs every 5 cards */
-  .blog-grid .card.mag:nth-child(5n+1){grid-column:span 2;grid-row:span 2;}
-  .blog-grid .card.mag:nth-child(5n+1) .card-title{font-size:clamp(1.2rem,1.7vw,1.6rem);-webkit-line-clamp:3;}
+  /* ColorMag-style overlay cards: cover fills card, text overlaid */
+  .card.mag{position:relative;display:block;break-inside:avoid;-webkit-column-break-inside:avoid;
+    margin:0 0 22px;border-radius:var(--radius-card);overflow:hidden;box-shadow:var(--neo);}
+  /* randomized sizes (assigned on load) = varied heights */
+  .card.mag.s{height:230px;}
+  .card.mag.m{height:300px;}
+  .card.mag.l{height:392px;}
+  .card.mag.l .card-title{font-size:clamp(1.15rem,1.6vw,1.45rem);-webkit-line-clamp:3;}
   /* custom designed cover (no photos): gradient + dot pattern + faint icon */
   .card.mag .cover{position:absolute;inset:0;z-index:0;transition:filter .35s ease;}
   .card.mag .pat{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.6;
@@ -437,7 +441,6 @@
 
   /* ============================ RESPONSIVE ============================ */
   @media (max-width:1024px){
-    .blog-grid{gap:18px;}
     .bento{gap:18px;}
     .alisha-inner{padding:36px;}
   }
@@ -452,8 +455,7 @@
     .bento{grid-template-columns:1fr;}
     .featured .card-title{font-size:1.35rem;}
     .mini-stack{grid-template-rows:none;grid-template-columns:1fr 1fr;}
-    .blog-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:clamp(148px,30vw,182px);}
-    .blog-grid .card.mag:nth-child(5n+1){grid-column:span 2;grid-row:span 2;}
+    .blog-grid{column-count:2;}
     .alisha-inner{grid-template-columns:1fr;}
     .agent{height:220px;order:-1;}
     .foot-grid{grid-template-columns:1fr 1fr;gap:28px;}
@@ -472,10 +474,7 @@
     .filter-inner::-webkit-scrollbar{display:none;}
     .pill{scroll-snap-align:start;}
     .mini-stack{grid-template-columns:1fr;}
-    .blog-grid{grid-template-columns:1fr;grid-auto-rows:auto;}
-    .blog-grid .card.mag{aspect-ratio:16/10;height:auto;}
-    .blog-grid .card.mag:nth-child(n){grid-column:auto;grid-row:auto;}
-    .blog-grid .card.mag:nth-child(5n+1) .card-title{-webkit-line-clamp:2;font-size:1.15rem;}
+    .blog-grid{column-count:1;}
     .alisha-inner{padding:26px;}
     .agent{--R:clamp(58px,15.5vw,80px);height:208px;}
     .agent .ni{padding:4px 10px 4px 4px;gap:6px;}
@@ -757,8 +756,10 @@
       </div>
     </a>`;
   }
+  /* randomized card size on load: ~50% small, 30% medium, 20% large */
+  const pickSize = () => { const r = Math.random(); return r < 0.5 ? "s" : r < 0.8 ? "m" : "l"; };
   function gridCard(p,i){
-    return `<a class="card mag reveal" href="#" data-cat="${p.c}">
+    return `<a class="card mag ${pickSize()} reveal" href="#" data-cat="${p.c}">
       <span class="cover" style="background:${cover(p,i)}"></span>
       <span class="pat"></span>
       <svg class="ic-bg" viewBox="0 0 24 24" aria-hidden="true">${CAT_ICON[p.c]||""}</svg>
